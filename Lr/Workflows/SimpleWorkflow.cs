@@ -3,7 +3,6 @@ using Lr.Agents;
 using Lr.Integrations;
 using Lr.Integrations.FireCrawl;
 using Lr.UI;
-using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace Lr.Workflows;
@@ -19,7 +18,6 @@ public class SimpleWorkflow(
 {
     public async Task Run(CancellationToken ct)
     {
-        
         while (!ct.IsCancellationRequested)
         {
             var userCommand = await ui.GetNextCommand(ct);

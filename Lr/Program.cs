@@ -1,26 +1,24 @@
 ﻿using Lr;
 using Lr.Agents.Configuration;
-using Lr.Integrations;
 using Lr.Integrations.FireCrawl;
 using Lr.Terminal.Commands;
 using Lr.UI;
 using Lr.UI.AnsiConsoleUi;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.SemanticKernel;
-using OllamaSharp;
 using Spectre.Console.Cli;
 using Spectre.Console.Cli.Extensions.DependencyInjection;
 
 SerilogConfiguration.Init();
 var services = InitIoc();
+await Run();
 
-var registrar = new DependencyInjectionRegistrar(services);
-
-var app = new CommandApp(registrar);
-app.SetDefaultCommand<SendMessageCommand>();
-
-return await app.RunAsync(args);
-
+async Task Run()
+{
+    var registrar = new DependencyInjectionRegistrar(services);
+    var app = new CommandApp(registrar);
+    app.SetDefaultCommand<ChatCommand>();
+    await app.RunAsync(args);
+}
 
 static ServiceCollection InitIoc()
 {

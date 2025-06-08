@@ -1,9 +1,5 @@
 #pragma warning disable SKEXP0070
-using System.Text;
 using Lr.Agents;
-using Lr.Integrations.FireCrawl;
-using Microsoft.KernelMemory;
-using Microsoft.KernelMemory.AI.Ollama;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.Ollama;

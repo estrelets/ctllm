@@ -8,6 +8,12 @@ namespace Lr.UI.AnsiConsoleUi;
 
 public class AnsiConsoleUi : IUserInterface
 {
+    private readonly Queue<UserCommand> _commandQueue = new();
+    public void PushCommand(UserCommand command)
+    {
+        _commandQueue.Enqueue(command);
+    }
+    
     public Task<UserCommand> GetNextCommand(CancellationToken ct)
     {
         return Task.FromResult(GetNextSync());
@@ -33,6 +39,11 @@ public class AnsiConsoleUi : IUserInterface
 
     private UserCommand GetNextSync()
     {
+        if (_commandQueue.TryDequeue(out var queued))
+        {
+            return queued;
+        }
+        
         var caption = new TextPrompt<string>("> ").AllowEmpty();
         var line = Prompt(caption).Trim();
         

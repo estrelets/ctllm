@@ -5,6 +5,7 @@ namespace Lr.UI;
 
 public interface IUserInterface
 {
+    void PushCommand(UserCommand command);
     Task<UserCommand> GetNextCommand(CancellationToken ct);
     void PrintMessage(AuthorRole role, string? message);
     Task<Agent> PickAgent(ApplicationContext context, string? query, CancellationToken ct);

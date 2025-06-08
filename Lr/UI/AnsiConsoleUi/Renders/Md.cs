@@ -45,7 +45,8 @@ public class MarkdownRenderable(string markdown) : Renderable
 
     private static bool IsThinking(HtmlBlock htmlBlock)
     {
-        return htmlBlock.Lines.ToString().StartsWith("<think>");
+        var str = htmlBlock.Lines.ToString();
+        return str.Contains("think") || str.Contains("</think>");
     }
 
     private IRenderable BuildingHeadingBlock(HeadingBlock heading)
@@ -131,7 +132,7 @@ public class MarkdownRenderable(string markdown) : Renderable
             }
         }
 
-        var panel = new Panel(new Text(sb.ToString().Trim().EscapeMarkup(), new Style(Color.Grey50)))
+        var panel = new Panel(new Markup(sb.ToString().Trim().EscapeMarkup(), new Style(Color.Grey50)))
         {
             Border = new LeftBorder(),
             BorderStyle = new Style(foreground: Color.Grey50),

@@ -1,5 +1,4 @@
 #pragma warning disable SKEXP0070
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.SemanticKernel.Connectors.Ollama;
 
 namespace Lr.Agents;

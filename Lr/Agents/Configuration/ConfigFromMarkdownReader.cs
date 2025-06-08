@@ -4,7 +4,6 @@ using System.Text.RegularExpressions;
 using Markdig.Renderers.Normalize;
 using Markdig.Syntax;
 using Microsoft.SemanticKernel.Connectors.Ollama;
-using Serilog;
 
 namespace Lr.Agents.Configuration;
 
