@@ -1,6 +1,7 @@
 using Lr.Agents;
 using Lr.Agents.Configuration;
 using Lr.UI;
+using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace Lr;
 
@@ -15,6 +16,7 @@ public class ApplicationContext(
     {
         var agent = await ui.PickAgent(this, query, ct);
         var workflow = await agent.GetWorkflow(sp);
+        ui.PrintMessage(AuthorRole.System, agent.Description);
         await workflow.Run(ct);
     }
 }

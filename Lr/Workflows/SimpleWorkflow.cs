@@ -3,6 +3,8 @@ using Lr.Agents;
 using Lr.Integrations;
 using Lr.Integrations.FireCrawl;
 using Lr.UI;
+using Lr.Workflows.Operations;
+using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace Lr.Workflows;
@@ -12,70 +14,45 @@ public class SimpleWorkflow(
     Agent agent,
     ChatContext chat,
     IUserInterface ui,
-    FireCrawlClient fireCrawl,
-    Ollama ollama
+    Ollama ollama,
+    FireCrawlClient fireCrawlClient
 ) : IWorkflow
 {
     public async Task Run(CancellationToken ct)
     {
+        Logger.Debug("Workflow started. Waiting for user commands.");
         while (!ct.IsCancellationRequested)
         {
             var userCommand = await ui.GetNextCommand(ct);
 
             switch (userCommand)
             {
-                case UserCommand.Search search:
-                    await Search(search.Query, ct);
+                case UserCommand.Help:
+                    var helpOperation = new HelpOperation();
+                    await helpOperation.Execute(agent, this, ui, chat, "", ct);
                     break;
                 
+                case UserCommand.Search search:
+                    var searchOperation =  new SearchOperation(ollama, fireCrawlClient);
+                    Logger.Debug("Processing search command with query: {Query}", search.Query);
+                    await searchOperation.Execute(agent, this, ui, chat, search.Query, ct);
+                    break;
+
                 case UserCommand.PickAgent pickCommand:
+                    Logger.Debug("Switching agent to: {AgentName}", pickCommand.NameQuery);
                     await app.SwitchAgent(pickCommand.NameQuery, ct);
                     break;
-                
+
                 case UserCommand.Chat chatCommand:
+                    Logger.Debug("Received chat message: {Message}", chatCommand.Text);
                     chat.History.AddUserMessage(chatCommand.Text);
                     var response = await ollama.ChatMessageContent(chat, ct);
-                    ui.PrintMessage(AuthorRole.System,  response.Content);
+                    Logger.Debug("Received response from Ollama: {ResponseContent}", response.Content);
+                    ui.PrintMessage(AuthorRole.System, response.Content);
                     break;
             }
         }
-    }
 
-    private async Task Search(string? query, CancellationToken ct)
-    {
-        // 1. Get suggestion for query
-        var suggestionContext = chat.ChangePrompt(agent.Configuration.SearchPrompt);
-        suggestionContext.History.AddUserMessage(query ?? "Поищи информацию для вопросов выше");
-        var suggestionResponse = await ollama.ChatMessageContent(suggestionContext, ct);
-        var suggestionQuery = suggestionResponse.Content;
-
-        // 2. Ask user for acceptance
-        query = ui.PromptString("Search prompt:", suggestionQuery);
-        if (string.IsNullOrEmpty(query))
-        {
-            return;
-        }
-
-        // 3. Search
-        var searchResult = await fireCrawl.Search(query, ct);
-        if (!searchResult.Success)
-        {
-            ui.PrintMessage(AuthorRole.Tool, "Error while search");
-            return;
-        }
-
-        var searchResultText = new StringBuilder();
-        foreach (var datum in searchResult.Data)
-        {
-            searchResultText.AppendLine($"Source link: {datum.Url}");
-            searchResultText.AppendLine($"Text: {datum.Markdown}");
-            searchResultText.AppendLine("-------------"); 
-        }
-
-        chat.History.AddMessage(AuthorRole.Tool, searchResultText.ToString());
-        var response = await ollama.ChatMessageContent(chat, ct);
-        ui.PrintMessage(AuthorRole.System,  response.Content);
+        Logger.Debug("Workflow cancelled.");
     }
 }
-
-

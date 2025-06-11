@@ -8,6 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Cli;
 using Spectre.Console.Cli.Extensions.DependencyInjection;
 
+Test.Start();
+
 SerilogConfiguration.Init();
 var services = InitIoc();
 await Run();
@@ -33,7 +35,14 @@ static ServiceCollection InitIoc()
     services.AddSingleton<ApplicationContext>();
 
     // AnsiConsoleUi
-    services.AddScoped<IUserInterface, AnsiConsoleUi>();
+    if (Environment.GetCommandLineArgs().Contains("--no-format"))
+    {
+        services.AddScoped<IUserInterface, ReadOnlyUi>();
+    }
+    else
+    {
+        services.AddScoped<IUserInterface, AnsiConsoleUi>();
+    }
 
     // Tools
     services.AddSingleton<FireCrawlClient>(_ => new FireCrawlClient("http://devserver.home:3002/v1/"));

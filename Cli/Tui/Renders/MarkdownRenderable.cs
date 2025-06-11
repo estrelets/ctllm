@@ -1,17 +1,21 @@
 using System.Text;
+using Lr.UI.AnsiConsoleUi.Renders;
 using Markdig;
+using Markdig.Renderers.Normalize;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 
-namespace Lr.UI.AnsiConsoleUi.Renders;
+namespace Cli.Tui.Renders;
 
 /// <summary>
 /// Украдено из интернетов, переписать
 /// </summary>
 public class MarkdownRenderable(string markdown) : Renderable
 {
+    private bool _thinkStarted;
+    
     protected override IEnumerable<Segment> Render(RenderOptions options, int maxWidth)
     {
         var ast = Markdown.Parse(markdown);
@@ -31,6 +35,7 @@ public class MarkdownRenderable(string markdown) : Renderable
     {
         return block switch
         {
+            _ when _thinkStarted => BuildThinkControl(block),
             HtmlBlock html when IsThinking(html) => BuildThinkControl(html),
             ParagraphBlock paragraph => CreateTextBlock(paragraph),
             HeadingBlock heading => BuildingHeadingBlock(heading),
@@ -43,10 +48,16 @@ public class MarkdownRenderable(string markdown) : Renderable
         };
     }
 
-    private static bool IsThinking(HtmlBlock htmlBlock)
+    private  bool IsThinking(HtmlBlock htmlBlock)
     {
         var str = htmlBlock.Lines.ToString();
-        return str.Contains("think") || str.Contains("</think>");
+        if (str.Contains("<think>"))
+        {
+            _thinkStarted = true;
+            return true;
+        }
+
+        return false;
     }
 
     private IRenderable BuildingHeadingBlock(HeadingBlock heading)
@@ -57,7 +68,7 @@ public class MarkdownRenderable(string markdown) : Renderable
             AddInlineContent(sb, heading.Inline);
         }
 
-        var content = sb.ToString().EscapeMarkup();
+        var content = sb.ToString();//.EscapeMarkup();
 
         switch (heading.Level)
         {
@@ -69,7 +80,7 @@ public class MarkdownRenderable(string markdown) : Renderable
 
         var rowChar = heading.Level == 2 ? '=' : '-';
 
-        var headerRow = new Text(content, new Style(foreground: Color.Yellow));
+        var headerRow = new Markup(content, new Style(foreground: Color.Yellow));
         var rowRow = new Text(new string(rowChar, content.Length), new Style(foreground: Color.Yellow));
 
         return new Rows(headerRow, rowRow);
@@ -115,30 +126,40 @@ public class MarkdownRenderable(string markdown) : Renderable
         return panel;
     }
 
-    private IRenderable BuildThinkControl(HtmlBlock htmlBlock)
+    private IRenderable BuildThinkControl(Block block)
     {
-        var sb = new StringBuilder();
-        var lines = htmlBlock.Lines.Lines;
+        string text;
 
-        foreach (var line in lines)
+        if (block is HtmlBlock html)
         {
-            var clean = line.ToString()
-                .Replace("<think>", "")
-                .Replace("</think>", "")
-                .Trim();
-            if (!String.IsNullOrEmpty(clean))
+            var sb = new StringBuilder();
+
+            foreach (var line in html.Lines)
             {
-                sb.AppendLine(clean);
+                var clean = line?.ToString()?.Trim();
+                if (!String.IsNullOrEmpty(clean))
+                {
+                    sb.AppendLine(clean);
+                }
             }
+
+            text = sb.ToString().Replace("<think>", "");
+        }
+        else
+        {
+            using var sw = new StringWriter();
+            var normRender = new NormalizeRenderer(sw);
+            normRender.Render(block);
+            text = sw.ToString();
         }
 
-        var panel = new Panel(new Markup(sb.ToString().Trim().EscapeMarkup(), new Style(Color.Grey50)))
+        if (text.Contains("</think>"))
         {
-            Border = new LeftBorder(),
-            BorderStyle = new Style(foreground: Color.Grey50),
-            Padding = new Padding(1, 0, 0, 0),
-        };
-        return panel;
+            text = text.Replace("</think>", "");
+            _thinkStarted = false;
+        }
+        
+        return new Text(text.Trim().EscapeMarkup(), new Style(Color.Grey50));
     }
 
     private IRenderable BuildQuoteControl(QuoteBlock quoteBlock)
@@ -248,18 +269,5 @@ public class MarkdownRenderable(string markdown) : Renderable
                     break;
             }
         }
-    }
-}
-
-class LeftBorder : BoxBorder
-{
-    public override string GetPart(BoxBorderPart part)
-    {
-        if (part is BoxBorderPart.Left)
-        {
-            return "\u2502";
-        }
-
-        return " ";
     }
 }

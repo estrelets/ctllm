@@ -1,12 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lr", "Lr\Lr.csproj", "{46D7E4DE-BE76-4910-906B-94D1DCD1A05D}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3639B33E-8E19-42FA-ABB6-92337D3B4BB2}"
 	ProjectSection(SolutionItems) = preProject
 		compose.yaml = compose.yaml
 		.gitignore = .gitignore
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{C92B2AD3-EC50-4F6A-A6B3-78A8F2BEFFA6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cli", "Cli\Cli.csproj", "{AC253D13-639F-4196-99E5-7C7B7CA3D317}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,9 +16,13 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{46D7E4DE-BE76-4910-906B-94D1DCD1A05D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{46D7E4DE-BE76-4910-906B-94D1DCD1A05D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{46D7E4DE-BE76-4910-906B-94D1DCD1A05D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{46D7E4DE-BE76-4910-906B-94D1DCD1A05D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C92B2AD3-EC50-4F6A-A6B3-78A8F2BEFFA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C92B2AD3-EC50-4F6A-A6B3-78A8F2BEFFA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C92B2AD3-EC50-4F6A-A6B3-78A8F2BEFFA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C92B2AD3-EC50-4F6A-A6B3-78A8F2BEFFA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC253D13-639F-4196-99E5-7C7B7CA3D317}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC253D13-639F-4196-99E5-7C7B7CA3D317}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC253D13-639F-4196-99E5-7C7B7CA3D317}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC253D13-639F-4196-99E5-7C7B7CA3D317}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,7 +1,8 @@
 using System.Net.Http.Json;
 using System.Text.Json;
+using Serilog;
 
-namespace Lr.Integrations.FireCrawl;
+namespace Common.Services.FireCrawl;
 
 public class FireCrawlClient(string url)
 {
@@ -10,20 +11,26 @@ public class FireCrawlClient(string url)
         BaseAddress = new Uri(url),
         Timeout = TimeSpan.FromMinutes(5)
     };
-    
-    public async Task<FireCrawlResult> Search(string query, CancellationToken ct)
+
+    public async Task<FireCrawlResult> Search(
+        string query,
+        string format,
+        int limit,
+        string? language,
+        string? country,
+        CancellationToken ct)
     {
         try
         {
             var req = new FireCrawlSearchRequest()
             {
-                Lang = "all",
-                Country = "ru",
+                Lang = language,
+                Country = country,
                 Query = query,
-                Limit = 5,
+                Limit = limit,
                 ScrapeOptions = new ScrapeOptions()
                 {
-                    Formats = ["markdown"]
+                    Formats = [format]
                 }
             };
 
@@ -31,9 +38,10 @@ public class FireCrawlClient(string url)
             var result = await response.Content.ReadFromJsonAsync<FireCrawlResult>(cancellationToken: ct);
             return result ?? new FireCrawlResult() { Success = false };
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            return new FireCrawlResult() { Success = false };;
+            Logger.Error(ex, "Error while firecrawl request");
+            return new FireCrawlResult() { Success = false };
         }
     }
 }

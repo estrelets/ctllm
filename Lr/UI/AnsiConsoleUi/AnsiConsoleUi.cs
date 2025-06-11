@@ -52,6 +52,11 @@ public class AnsiConsoleUi : IUserInterface
             return GetNextSync();
         }
 
+        if (line.StartsWith("?"))
+        {
+            return new UserCommand.Help();
+        }
+
         if (line.StartsWith("@"))
         {
             var agentQuery = line.Length == 1

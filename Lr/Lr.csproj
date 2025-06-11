@@ -29,6 +29,15 @@
       <PackageReference Include="Spectre.Console" Version="0.48.0" />
       <PackageReference Include="Spectre.Console.Cli" Version="0.48.0" />
       <PackageReference Include="Spectre.Console.Cli.Extensions.DependencyInjection" Version="0.2.0" />
+      <PackageReference Include="YamlDotNet" Version="16.3.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Utils\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Common\Common.csproj" />
     </ItemGroup>
 
 </Project>

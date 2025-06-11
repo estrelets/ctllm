@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Lr.Integrations.FireCrawl;
+namespace Common.Services.FireCrawl;
 
 public class FireCrawlResult
 {

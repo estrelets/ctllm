@@ -12,7 +12,6 @@ public class Ollama(Kernel kernel, OllamaPromptExecutionSettings configurationPa
     
     public async Task<ChatMessageContent> ChatMessageContent(ChatContext chat, CancellationToken ct)
     {
-        
         return await _chat.GetChatMessageContentAsync(
             chat.History, 
             executionSettings: configurationParameters, 

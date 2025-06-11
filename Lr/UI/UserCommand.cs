@@ -7,4 +7,6 @@ public abstract record UserCommand
     public record PickAgent(string? NameQuery) : UserCommand;
 
     public record Chat(string Text) : UserCommand;
+
+    public record Help() : UserCommand;
 }

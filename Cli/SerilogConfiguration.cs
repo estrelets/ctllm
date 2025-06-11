@@ -1,7 +1,7 @@
 using Serilog;
 using Serilog.Events;
 
-namespace Lr;
+namespace Cli;
 
 public static class SerilogConfiguration
 {
@@ -12,8 +12,8 @@ public static class SerilogConfiguration
         var consoleTemplate = "[{Timestamp:HH:mm:ss} {Level:w2}] {Message:lj}{NewLine}{Exception}";
         var fileTemplate = "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}";
 
-        Logger = new LoggerConfiguration()
-            .WriteTo.Console(LogEventLevel.Information, outputTemplate: consoleTemplate)
+        Log.Logger = new LoggerConfiguration()
+            //.WriteTo.Console(LogEventLevel.Information, outputTemplate: consoleTemplate)
             .WriteTo.File(logPath, LogEventLevel.Verbose, outputTemplate: fileTemplate)
             .MinimumLevel.Verbose()
             .CreateLogger();

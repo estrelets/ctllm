@@ -1,3 +1,4 @@
+using Serilog;
 #pragma warning disable SKEXP0070
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
@@ -19,25 +20,34 @@ public class ConfigFromMarkdownReader(string directory) : IAgentConfigurationFac
     public async Task<InitResult[]> Init(CancellationToken ct)
     {
         var directoryInfo = new DirectoryInfo(directory);
+        Logger.Information("Starting to read configuration files from directory: {Directory}", directory);
 
-        // Read
+        // Parse                                                                                                    
         ConfigRaw? baseRaw = null;
         var raws = new List<ConfigRaw>();
         foreach (var fileInfo in directoryInfo.GetFiles("*.md"))
         {
-            var config = await Read(fileInfo.FullName, ct);
+            try
+            {
+                var config = await Read(fileInfo.FullName, ct);
+                Logger.Debug("Parse configuration file: {Path}", fileInfo.FullName);
 
-            if (fileInfo.Name == "base.md")
-            {
-                baseRaw = config with { Workflow = "simple" };
+                if (fileInfo.Name == "base.md")
+                {
+                    baseRaw = config with { Workflow = "simple" };
+                }
+                else
+                {
+                    raws.Add(config);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                raws.Add(config);
+                Logger.Error(ex, "Failed to read configuration file: {Path}", fileInfo.FullName);
             }
         }
 
-        //Parse
+        //Parse                                                                                                    
         var result = new List<InitResult>(raws.Count);
         foreach (var raw in raws)
         {
@@ -81,7 +91,7 @@ public class ConfigFromMarkdownReader(string directory) : IAgentConfigurationFac
                 continue;
             }
 
-            result.Add(new InitResult.Ok(new AgentConfiguration()
+            var config = new AgentConfiguration()
             {
                 Name = raw.Name,
                 Prompt = prompt,
@@ -89,9 +99,13 @@ public class ConfigFromMarkdownReader(string directory) : IAgentConfigurationFac
                 Workflow = workflow,
                 ModelName = modelName,
                 Parameters = Parse(parameters)
-            }));
+            };
+
+            Logger.Debug("Finished read {@Config}", config);
+            result.Add(new InitResult.Ok(config));
         }
 
+        Logger.Information("Finished reading configuration files. Total configurations: {Count}", result.Count);
         return result.ToArray();
     }
 
@@ -129,6 +143,7 @@ public class ConfigFromMarkdownReader(string directory) : IAgentConfigurationFac
     private bool TryGetName(MarkdownDocument doc, [NotNullWhen(true)] out string? header)
     {
         var block = doc.FirstOrDefault(IsHeaderPredicate(1));
+        
         if (block is not HeadingBlock headingBlock || headingBlock.Inline == null)
         {
             header = default;
@@ -247,7 +262,7 @@ public class ConfigFromMarkdownReader(string directory) : IAgentConfigurationFac
                 return null;
             }
         }
-        
+
         float? PraseFloat(string name)
         {
             try
