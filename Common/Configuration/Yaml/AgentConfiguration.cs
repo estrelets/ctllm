@@ -1,4 +1,4 @@
-namespace Common.Configuration;
+namespace Common.Configuration.Yaml;
 
 public class AgentConfiguration
 {

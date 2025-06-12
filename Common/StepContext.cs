@@ -1,3 +1,5 @@
+using Common.StepResults;
+
 namespace Common;
 
 public class StepContext

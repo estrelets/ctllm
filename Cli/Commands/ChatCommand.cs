@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Text;
 using Common;
 using Common.Runner;
+using Common.StepResults;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Spectre.Console.Cli;
 

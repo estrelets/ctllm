@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using Serilog;
 
@@ -34,7 +35,12 @@ public class FireCrawlClient(string url)
                 }
             };
 
-            var response = await _client.PostAsJsonAsync("search", req, JsonSerializerOptions.Web, ct);
+            var json = JsonSerializer.Serialize(req, JsonSerializerOptions.Web);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            Logger.Debug("Send request to Firecrawl: {Payload}", json);
+            var response = await _client.PostAsync("search", content, ct);
+            var responseContent = await response.Content.ReadAsStringAsync(ct);
+            Logger.Debug("Received from Firecrawl: {Payload}", responseContent);
             var result = await response.Content.ReadFromJsonAsync<FireCrawlResult>(cancellationToken: ct);
             return result ?? new FireCrawlResult() { Success = false };
         }

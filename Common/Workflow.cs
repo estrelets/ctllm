@@ -1,4 +1,6 @@
-﻿namespace Common;
+﻿using Common.Steps;
+
+namespace Common;
 
 public class Workflow
 {

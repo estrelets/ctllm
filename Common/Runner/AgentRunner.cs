@@ -1,13 +1,10 @@
 using System.Diagnostics;
-using Common.ModelClient;
+using Common.StepResults;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Common.Runner;
 
-public class AgentRunner(
-    ChatRunner chatRunner, 
-    RephraseRunner rephraseRunner, 
-    FirecrawlSearchRunner firecrawlSearchRunner,
-    PrintStepRunner printStepRunner)
+public class AgentRunner(StepRunnerLocator runnerLocator, IServiceScopeFactory scopeFactory)
 {
     public async Task Run(Agent agent, StepContext stepContext, CancellationToken ct)
     {
@@ -18,9 +15,12 @@ public class AgentRunner(
         {
             Logger.Debug("Start execute step {@Step}", step);
             var sw = Stopwatch.StartNew();
+            using var stepScope = scopeFactory.CreateScope();
+            
             try
             {
-                var result = await ExecuteStep(stepContext, step, ct);
+                var runner = runnerLocator.Create(stepScope.ServiceProvider, step.GetType());
+                var result = await runner.Run(stepContext, step, ct);
                 if (result is NoOpStepResult)
                 {
                     continue;
@@ -42,26 +42,5 @@ public class AgentRunner(
         }
 
         Logger.Debug("Finished workflow {Workflow}", agent.Workflow);
-    }
-
-    private async Task<IStepResult> ExecuteStep(StepContext stepContext, IStep step, CancellationToken ct)
-    {
-        switch (step)
-        {
-            case RephraseStep rephraseStep:
-                return await rephraseRunner.Run(stepContext, rephraseStep, ct);
-
-            case ChatStep chatStep:
-                return await chatRunner.Run(stepContext, chatStep, ct);
-            
-            case FirecrawlSearchStep firecrawlSearchStep:
-                return await firecrawlSearchRunner.Run(stepContext, firecrawlSearchStep, ct);
-            
-            case PrintStep printStep:
-                return await printStepRunner.Run(stepContext, printStep, ct);
-            
-            default:
-                throw new NotImplementedException();
-        }
     }
 }
