@@ -1,9 +1,11 @@
-namespace Common.Steps;
+using Common.Steps;
+
+namespace Plugins.Firecrawl.Steps;
 
 /// <summary>
 /// Step for searching information using Firecrawl
 /// </summary>
-public class FirecrawlSearchStep : IStep
+public class SearchStep : IStep
 {
     /// <inheritdoc />
     public required string Name { get; init; }

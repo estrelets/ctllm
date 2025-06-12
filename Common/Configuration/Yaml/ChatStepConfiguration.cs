@@ -5,7 +5,6 @@ namespace Common.Configuration.Yaml;
 // ReSharper disable once UnusedType.Global
 public class ChatStepConfiguration : IStepConfiguration
 {
-    public string Discriminator => "Chat";
     public required string Name { get; init; }
     public required string Model { get; init; }
     public string? Prompt { get; set; }

@@ -10,6 +10,6 @@ public class PrintStepStepRunner(IUserInterface ui) : IStepRunner<PrintStep>
     public async Task<IStepResult> Run(StepContext context, PrintStep step, CancellationToken ct)
     {
         await ui.ShowMessage(AuthorRole.Tool, context.Last.Main, ct);
-        return new NoOpStepResult();
+        return new VoidStepResult();
     }
 }

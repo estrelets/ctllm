@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <PackageReference Include="Markdig" Version="0.41.2" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
         <PackageReference Include="Spectre.Console" Version="0.48.0" />
         <PackageReference Include="Spectre.Console.Cli" Version="0.48.0" />
         <PackageReference Include="Spectre.Console.Cli.Extensions.DependencyInjection" Version="0.2.0" />
@@ -22,6 +23,7 @@
     
     <ItemGroup>
       <ProjectReference Include="..\Common\Common.csproj" />
+        <ProjectReference Include="..\Plugins\Firecrawl\Firecrawl.csproj" />
     </ItemGroup>
     
 </Project>

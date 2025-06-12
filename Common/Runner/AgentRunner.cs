@@ -21,7 +21,7 @@ public class AgentRunner(StepRunnerLocator runnerLocator, IServiceScopeFactory s
             {
                 var runner = runnerLocator.Create(stepScope.ServiceProvider, step.GetType());
                 var result = await runner.Run(stepContext, step, ct);
-                if (result is NoOpStepResult)
+                if (result is VoidStepResult)
                 {
                     continue;
                 }

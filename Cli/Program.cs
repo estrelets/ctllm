@@ -2,9 +2,9 @@
 using Cli.Commands;
 using Cli.Tui;
 using Common;
-using Common.Configuration;
 using Common.Configuration.Yaml;
 using Microsoft.Extensions.DependencyInjection;
+using Plugins.Firecrawl;
 using Spectre.Console.Cli;
 using Spectre.Console.Cli.Extensions.DependencyInjection;
 
@@ -21,14 +21,16 @@ return await app.RunAsync(args);
 
 static async Task<ServiceCollection> Init(CancellationToken ct)
 {
+    var services = new ServiceCollection();
+    services
+        .AddSingleton<IUserInterface, Tui>()
+        .AddCommon()
+        .AddFirecrawlPlugin()
+        .AddFirecrawl("http://devserver.home:3002/v1/");
+    
     var agentsFactory = new YamlConfigParser("/home/estr/Documents/llm/models");
     var agents = await agentsFactory.Init(ct);
-
-    var services = new ServiceCollection();
     services.AddSingleton<Agent[]>(agents);
-    services.AddCommon();
-    services.AddFireCrawlClient("http://devserver.home:3002/v1/");
-    services.AddSingleton<IUserInterface, Tui>();
 
     return services;
 }

@@ -10,6 +10,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cli", "Cli\Cli.csproj", "{AC253D13-639F-4196-99E5-7C7B7CA3D317}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{394804CF-6929-483B-A895-208F225FC618}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Firecrawl", "Plugins\Firecrawl\Firecrawl.csproj", "{E3B70D81-B9D2-4539-9778-B58E7B4B89EA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +28,12 @@ Global
 		{AC253D13-639F-4196-99E5-7C7B7CA3D317}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AC253D13-639F-4196-99E5-7C7B7CA3D317}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AC253D13-639F-4196-99E5-7C7B7CA3D317}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3B70D81-B9D2-4539-9778-B58E7B4B89EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3B70D81-B9D2-4539-9778-B58E7B4B89EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3B70D81-B9D2-4539-9778-B58E7B4B89EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3B70D81-B9D2-4539-9778-B58E7B4B89EA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E3B70D81-B9D2-4539-9778-B58E7B4B89EA} = {394804CF-6929-483B-A895-208F225FC618}
 	EndGlobalSection
 EndGlobal

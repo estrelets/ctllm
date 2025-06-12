@@ -1,4 +1,3 @@
-using System.Reflection;
 using YamlDotNet.Serialization;
 
 namespace Common.Configuration.Yaml;
@@ -6,6 +5,14 @@ namespace Common.Configuration.Yaml;
 public class YamlConfigParser(string configDirectory) : IAgentFactory
 {
     private readonly IDeserializer _deserializer = BuildDeserializer();
+
+    static YamlConfigParser()
+    {
+        YamlTypeLocator.AddModel<OllamaModelConfiguration>("Ollama");
+        YamlTypeLocator.AddStep<ChatStepConfiguration>("Chat");
+        YamlTypeLocator.AddStep<PrintStepConfiguration>("Print");
+        YamlTypeLocator.AddStep<RephraseStepConfiguration>("Rephrase");
+    }
 
     public async Task<Agent[]> Init(CancellationToken ct)
     {
@@ -40,7 +47,7 @@ public class YamlConfigParser(string configDirectory) : IAgentFactory
     {
         var config = _deserializer.Deserialize<AgentConfiguration>(yaml);
         var prompts = config.Prompts;
-        
+
         var context = new YamlParseContext(prompts, new Dictionary<string, IModel>());
         var models = config.Models.ToDictionary(x => x.Key, v => v.Value.Parse(context));
         context = context with { Models = models };
@@ -64,40 +71,9 @@ public class YamlConfigParser(string configDirectory) : IAgentFactory
             .IgnoreUnmatchedProperties()
             .WithTypeDiscriminatingNodeDeserializer(o =>
             {
-                o.AddKeyValueTypeDiscriminator<IStepConfiguration>(
-                    "Type",
-                    FindAllImplementations<IStepConfiguration>(nameof(IStepConfiguration.Discriminator))
-                );
-                o.AddKeyValueTypeDiscriminator<IModelConfiguration>(
-                    "Type",
-                    FindAllImplementations<IModelConfiguration>(nameof(IModelConfiguration.Discriminator)));
+                o.AddKeyValueTypeDiscriminator<IStepConfiguration>("Type", YamlTypeLocator.Steps);
+                o.AddKeyValueTypeDiscriminator<IModelConfiguration>("Type", YamlTypeLocator.Models);
             })
             .Build();
-    }
-
-    private static Dictionary<string, Type> FindAllImplementations<TInterface>(string discriminatorPropertyName)
-    {
-        var interfaceType = typeof(TInterface);
-        var configTypes = Assembly.GetExecutingAssembly()
-            .GetTypes()
-            .Where(t => interfaceType.IsAssignableFrom(t) && !t.IsAbstract)
-            .ToList();
-
-        var configMap = new Dictionary<string, Type>();
-        foreach (var type in configTypes)
-        {
-            var instance = Activator.CreateInstance(type);
-            var discriminatorProperty = type.GetProperty(discriminatorPropertyName);
-            if (discriminatorProperty != null)
-            {
-                var discriminatorValue = discriminatorProperty.GetValue(instance) as string;
-                if (!string.IsNullOrEmpty(discriminatorValue))
-                {
-                    configMap[discriminatorValue] = type;
-                }
-            }
-        }
-
-        return configMap;
     }
 }

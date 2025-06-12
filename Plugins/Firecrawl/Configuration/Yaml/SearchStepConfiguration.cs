@@ -1,11 +1,12 @@
+using Common.Configuration.Yaml;
 using Common.Steps;
+using Plugins.Firecrawl.Steps;
 
-namespace Common.Configuration.Yaml;
+namespace Plugins.Firecrawl.Configuration.Yaml;
 
 // ReSharper disable once UnusedType.Global
-public class FirecrawlSearchStepConfiguration : IStepConfiguration
+public class SearchStepConfiguration : IStepConfiguration
 {
-    public string Discriminator => "FirecrawlSearch";
     public required string Name { get; set; }
     public required string Format { get; set; }
     public int Limit { get; set; }
@@ -14,7 +15,7 @@ public class FirecrawlSearchStepConfiguration : IStepConfiguration
     
     public IStep Parse(YamlParseContext context)
     {
-        return new FirecrawlSearchStep()
+        return new SearchStep()
         {
             Name = Name,
             Format = Format,

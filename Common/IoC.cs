@@ -1,6 +1,5 @@
 using Common.ModelClient;
 using Common.Runner;
-using Common.Services.FireCrawl;
 using Common.Steps;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,21 +8,45 @@ namespace Common;
 public static class IoC
 {
     private readonly static Dictionary<Type, Type> StepToRunnerMap = new();
-    
-    public static void AddCommon(this IServiceCollection services)
+
+    public static IServiceCollection AddCommon(this IServiceCollection services)
     {
-        services.AddScoped<AgentRunner>();
-        
-        services.AddScoped<ModelAccessor>();
-        services.AddScoped<ChatStepStepRunner>();
-        
-        services.AddRunner<ChatStep, ChatStepStepRunner>(ServiceLifetime.Scoped);
-        services.AddRunner<RephraseStep, RephraseStepRunner>(ServiceLifetime.Scoped);
-        services.AddRunner<FirecrawlSearchStep, FirecrawlSearchStepRunner>(ServiceLifetime.Scoped);
-        services.AddRunner<PrintStep, PrintStepStepRunner>(ServiceLifetime.Scoped);
+        return services
+            .AddScoped<AgentRunner>()
+            .AddScoped<ModelAccessor>()
+            .AddRunner<ChatStep, ChatStepStepRunner>(ServiceLifetime.Scoped)
+            .AddRunner<RephraseStep, RephraseStepRunner>(ServiceLifetime.Scoped)
+            .AddRunner<PrintStep, PrintStepStepRunner>(ServiceLifetime.Scoped)
+            ;
+    }
+    
+    public static IServiceCollection AddAlwaysErrorRunner<TStep>(this IServiceCollection services, string message)
+        where TStep : IStep
+    {
+        var runner = new AlwaysErrorStepRunner<TStep>(message);
+        var descriptor = new ServiceDescriptor(runner.GetType(), runner);
+        return services.AddRunner<TStep, AlwaysErrorStepRunner<TStep>>(descriptor);
     }
 
-    public static void AddRunner<TStep, TRunner>(this IServiceCollection services, ServiceLifetime lifetime)
+    public static IServiceCollection AddRunner<TStep, TRunner>(this IServiceCollection services,
+        ServiceLifetime lifetime)
+        where TStep : IStep
+        where TRunner : IStepRunner<TStep>
+    {
+        var descriptor = new ServiceDescriptor(typeof(TRunner), typeof(TRunner), lifetime);
+        return services.AddRunner<TStep, TRunner>(descriptor);
+    }
+
+    public static IServiceCollection AddRunner<TStep, TRunner>(this IServiceCollection services, TRunner instance)
+        where TStep : IStep
+        where TRunner : IStepRunner<TStep>
+    {
+        var descriptor = new ServiceDescriptor(typeof(TRunner), typeof(TRunner), instance);
+        return services.AddRunner<TStep, TRunner>(descriptor);
+    }
+
+    public static IServiceCollection AddRunner<TStep, TRunner>(this IServiceCollection services,
+        ServiceDescriptor descriptor)
         where TStep : IStep
         where TRunner : IStepRunner<TStep>
     {
@@ -31,13 +54,18 @@ public static class IoC
         {
             services.AddSingleton<StepRunnerLocator>(_ => new StepRunnerLocator(StepToRunnerMap));
         }
-        
-        services.Add(new ServiceDescriptor(typeof(TRunner), typeof(TRunner), lifetime));
-        StepToRunnerMap[typeof(TStep)] = typeof(TRunner);
-    }
 
-    public static void AddFireCrawlClient(this IServiceCollection services, string url)
-    {
-        services.AddSingleton<FireCrawlClient>(x => new FireCrawlClient(url));
+        if (StepToRunnerMap.TryGetValue(typeof(TStep), out var existingRunnerType))
+        {
+            var existingRunnerDescriptor = services.FirstOrDefault(x => x.ServiceType == existingRunnerType);
+            if (existingRunnerDescriptor != null)
+            {
+                services.Remove(existingRunnerDescriptor);
+            }
+        }
+
+        StepToRunnerMap[typeof(TStep)] = typeof(TRunner);
+        services.Add(descriptor);
+        return services;
     }
 }

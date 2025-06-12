@@ -5,7 +5,6 @@ namespace Common.Configuration.Yaml;
 // ReSharper disable once UnusedType.Global
 public class RephraseStepConfiguration : IStepConfiguration
 {
-    public string Discriminator => "Rephrase";
     public required string Name { get; set; }
     public required string Model { get; set; }
     public string? Prompt { get; set; }

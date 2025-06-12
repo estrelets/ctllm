@@ -1,18 +1,19 @@
 using System.Text;
-using Common.Services.FireCrawl;
+using Common.StepResults;
+using Plugins.Firecrawl.Dtos;
 
-namespace Common.StepResults;
+namespace Plugins.Firecrawl.StepResults;
 
-public record FirecrawlSearchStepResult(FireCrawlFoundItem[] Items) : IStepResult
+public record SearchStepResult(FoundItem[] Items) : IStepResult
 {
     public string Main { get; } = Compile(Items);
 
     /// <summary>
-    /// Compiles FireCrawlFoundItem array into formatted string with source links and text content
+    /// Compiles FoundItem array into formatted string with source links and text content
     /// </summary>
-    /// <param name="items">Array of FireCrawlFoundItem objects to compile</param>
+    /// <param name="items">Array of FoundItem objects to compile</param>
     /// <returns>Formatted string containing compiled results</returns>
-    private static string Compile(FireCrawlFoundItem[] items)
+    private static string Compile(FoundItem[] items)
     {
         var output = new StringBuilder();
         foreach (var item in items)
