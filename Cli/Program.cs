@@ -3,12 +3,24 @@ using Cli.Commands;
 using Cli.Tui;
 using Common;
 using Common.Configuration.Yaml;
+using Common.RAG;
+using Common.RAG.FileSystem;
 using Microsoft.Extensions.DependencyInjection;
 using Plugins.Firecrawl;
 using Spectre.Console.Cli;
 using Spectre.Console.Cli.Extensions.DependencyInjection;
+using Telegram.Bot.Types;
 
 SerilogConfiguration.Init();
+
+// var ds = new DirectoryDocumentSource()
+// {
+//     Path = "/home/estr/Documents/llm/RAG",
+//     Name = "DS"
+// };
+// var documents = await ds.Refresh([], CancellationToken.None);
+// var light = documents.Cast<FileDocument>().Cast<IDocumentLite>().ToArray();
+// var documents2 = await ds.Refresh(light, CancellationToken.None);
 
 var ct = CancellationToken.None;
 var services = await Init(ct);

@@ -12,6 +12,7 @@ public class YamlConfigParser(string configDirectory) : IAgentFactory
         YamlTypeLocator.AddStep<ChatStepConfiguration>("Chat");
         YamlTypeLocator.AddStep<PrintStepConfiguration>("Print");
         YamlTypeLocator.AddStep<RephraseStepConfiguration>("Rephrase");
+        YamlTypeLocator.AddDocumentSource<DirectoryDocumentSourceConfiguration>("Directory");
     }
 
     public async Task<Agent[]> Init(CancellationToken ct)
@@ -52,7 +53,7 @@ public class YamlConfigParser(string configDirectory) : IAgentFactory
         var models = config.Models.ToDictionary(x => x.Key, v => v.Value.Parse(context));
         context = context with { Models = models };
 
-        return new Agent()
+        return new Agent
         {
             Name = config.Name,
             Workflow = new Workflow()
@@ -61,7 +62,10 @@ public class YamlConfigParser(string configDirectory) : IAgentFactory
                 Steps = config.Workflow.Steps
                     .Select(step => step.Parse(context))
                     .ToArray()
-            }
+            },
+            DocumentsSources = config.Documents
+                ?.Select(x => x.Value.Parse(x.Key, context))
+                .ToArray() ?? []
         };
     }
 
@@ -73,6 +77,7 @@ public class YamlConfigParser(string configDirectory) : IAgentFactory
             {
                 o.AddKeyValueTypeDiscriminator<IStepConfiguration>("Type", YamlTypeLocator.Steps);
                 o.AddKeyValueTypeDiscriminator<IModelConfiguration>("Type", YamlTypeLocator.Models);
+                o.AddKeyValueTypeDiscriminator<IDocumentSourceConfiguration>("Type", YamlTypeLocator.DocumentSources);
             })
             .Build();
     }

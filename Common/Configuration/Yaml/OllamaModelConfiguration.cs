@@ -10,7 +10,6 @@ public class OllamaModelConfiguration : IModelConfiguration
     public float? TopP { get; set; }
     public float? Temperature { get; set; }
     public int? NumPredict { get; set; }
-    public string Discriminator => "Ollama";
     
     public IModel Parse(YamlParseContext context)
     {

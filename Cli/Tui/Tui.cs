@@ -7,11 +7,11 @@ namespace Cli.Tui;
 
 public class Tui : IUserInterface
 {
-    public string? PromptString(string? title = null, string? defaultValue = null, bool allowEmpty = true)
+    public Task<string?> PromptString(string? title = null, string? defaultValue = null, bool allowEmpty = true)
     {
         var caption = new TextPrompt<string?>(title ?? ": ").DefaultValue(defaultValue);
         caption.AllowEmpty = allowEmpty;
-        return AnsiConsole.Prompt(caption);
+        return Task.FromResult(AnsiConsole.Prompt(caption));
     }
 
     public Task<string> GetMessage(CancellationToken ct)

@@ -4,6 +4,7 @@ public static class YamlTypeLocator
 {
     internal static IDictionary<string, Type> Steps { get; } = new Dictionary<string, Type>();
     internal static IDictionary<string, Type> Models { get; } = new Dictionary<string, Type>();
+    internal static IDictionary<string, Type> DocumentSources { get; } = new Dictionary<string, Type>();
 
     public static void AddStep<TStep>(string name) where TStep : IStepConfiguration
     {
@@ -13,5 +14,10 @@ public static class YamlTypeLocator
     public static void AddModel<TModel>(string name) where TModel : IModelConfiguration
     {
         Models[name] = typeof(TModel);
+    }
+    
+    public static void AddDocumentSource<TSource>(string name) where TSource : IDocumentSourceConfiguration
+    {
+        DocumentSources[name] = typeof(TSource);
     }
 }

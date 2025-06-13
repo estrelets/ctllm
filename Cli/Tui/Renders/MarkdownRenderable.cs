@@ -106,6 +106,11 @@ public class MarkdownRenderable(string markdown) : Renderable
         var sb = new StringBuilder();
         var lines = codeBlock.Lines.Lines;
 
+        if (lines == null)
+        {
+            return new Paragraph();
+        }
+
         foreach (var line in lines)
         {
             sb.AppendLine(line.ToString());
