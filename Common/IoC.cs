@@ -1,4 +1,6 @@
 using Common.ModelClient;
+using Common.RAG;
+using Common.RAG.SqliteVectorizer;
 using Common.Runner;
 using Common.Steps;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,10 +15,10 @@ public static class IoC
     {
         return services
             .AddScoped<AgentRunner>()
-            .AddScoped<ModelAccessor>()
             .AddRunner<ChatStep, ChatStepStepRunner>(ServiceLifetime.Scoped)
             .AddRunner<RephraseStep, RephraseStepRunner>(ServiceLifetime.Scoped)
             .AddRunner<PrintStep, PrintStepStepRunner>(ServiceLifetime.Scoped)
+            .AddSingleton<IDocumentVectorizer, DocumentVectorizer>(sp => ActivatorUtilities.CreateInstance<DocumentVectorizer>(sp, "/home/estr/Documents/llm/vectors"))
             ;
     }
     

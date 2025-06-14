@@ -1,6 +1,12 @@
+using Common.RAG;
+
 namespace Common.Configuration.Yaml;
 
-public record YamlParseContext(IReadOnlyDictionary<string, string> Prompts, IReadOnlyDictionary<string, IModel> Models)
+public record YamlParseContext(
+    IServiceProvider ServiceProvider,
+    IReadOnlyDictionary<string, string> Prompts,
+    IReadOnlyDictionary<string, IModel> Models,
+    IReadOnlyDictionary<string, IDocumentsSource> Documents)
 {
     public string? GetPrompt(string? prompt = null, string? promptName = null)
     {

@@ -1,15 +1,18 @@
 using System.Diagnostics;
+using Common.RAG;
 using Common.StepResults;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Common.Runner;
 
-public class AgentRunner(StepRunnerLocator runnerLocator, IServiceScopeFactory scopeFactory)
+public class AgentRunner(StepRunnerLocator runnerLocator, IDocumentVectorizer vectorizer, IServiceScopeFactory scopeFactory)
 {
-    public async Task Run(Agent agent, StepContext stepContext, CancellationToken ct)
+    public async Task Run(Agent agent, WorkflowContext workflowContext, CancellationToken ct)
     {
         Logger.Debug("Start agent {Agent}", agent);
         Logger.Debug("Start workflow {Workflow}", agent.Workflow);
+
+        await agent.Models.Init(vectorizer, ct);
 
         foreach (var step in agent.Workflow.Steps)
         {
@@ -19,14 +22,14 @@ public class AgentRunner(StepRunnerLocator runnerLocator, IServiceScopeFactory s
             
             try
             {
-                var runner = runnerLocator.Create(stepScope.ServiceProvider, step.GetType());
-                var result = await runner.Run(stepContext, step, ct);
+                var runner = runnerLocator.Create(stepScope.ServiceProvider, agent, step.GetType());
+                var result = await runner.Run(workflowContext, step, ct);
                 if (result is VoidStepResult)
                 {
                     continue;
                 }
                 
-                stepContext.Push(result);
+                workflowContext.Push(result);
                 Logger.Debug("Finished execute step {Step} with result {@Result}", step.Name, result);
             }
             catch (Exception ex)

@@ -2,5 +2,6 @@ namespace Common.Configuration.Yaml;
 
 public interface IModelConfiguration
 {
-    IModel Parse(YamlParseContext context);
+    IModel Parse(string key, YamlParseContext context);
+    void BindDocuments(IModel model, YamlParseContext context);
 }

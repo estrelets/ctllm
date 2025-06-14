@@ -6,11 +6,12 @@ using Plugins.Firecrawl.Steps;
 
 namespace Plugins.Firecrawl.Runners;
 
-public class ScrapeStepRunner(HttpClient httpClient) : IStepRunner<ScrapeStep>
+public class ScrapeStepRunner(IHttpClientFactory httpClientFactory) : IStepRunner<ScrapeStep>
 {
-    public async Task<IStepResult> Run(StepContext context, ScrapeStep step, CancellationToken ct)
+    public async Task<IStepResult> Run(WorkflowContext context, ScrapeStep step, CancellationToken ct)
     {
-        var client = new FireсrawlClient(httpClient);
+        var httpClient = httpClientFactory.CreateClient(HttpClientKeys.Scrape);
+        var client = new FirecrawlClient(httpClient);
         
         var foundResult = await client.Scrape(context.Last.Main, step.Format, step.OnlyMainContent, ct);
         if (!foundResult.Success || String.IsNullOrEmpty(foundResult.Data?.Markdown))

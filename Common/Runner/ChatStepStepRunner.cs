@@ -5,11 +5,11 @@ using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace Common.Runner;
 
-public class ChatStepStepRunner(ModelAccessor accessor, IUserInterface ui) : IStepRunner<ChatStep>
+public class ChatStepStepRunner(Agent agent, IUserInterface ui) : IStepRunner<ChatStep>
 {
-    public async Task<IStepResult> Run(StepContext context, ChatStep step, CancellationToken ct)
+    public async Task<IStepResult> Run(WorkflowContext context, ChatStep step, CancellationToken ct)
     {
-        var model = accessor.Get(step.Model);
+        var model = agent.Models.Get(step.Model);
         var history = new ChatHistory();
 
         if (context.Last is not StubStepResult && !step.IgnoreFirstMessage)

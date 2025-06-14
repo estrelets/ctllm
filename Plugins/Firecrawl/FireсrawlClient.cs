@@ -5,7 +5,7 @@ using Plugins.Firecrawl.Dtos;
 
 namespace Plugins.Firecrawl;
 
-public class FireсrawlClient(HttpClient client)
+public class FirecrawlClient(HttpClient client)
 {
     public async Task<SearchResult> Search(
         string query,
@@ -55,7 +55,12 @@ public class FireсrawlClient(HttpClient client)
             };
 
             var result = await Execute<ScrapeResult>("scrape", req, ct);
-            return result ?? new ScrapeResult() { Success = false };
+            if (result == null || result.Data == null || String.IsNullOrEmpty(result.Data.Markdown))
+            {
+                return new ScrapeResult() { Success = false };
+            }
+
+            return result;
         }
         catch (Exception ex)
         {

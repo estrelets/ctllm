@@ -1,6 +1,6 @@
-using System.ComponentModel;
 using System.Text;
 using Common;
+using Common.Configuration;
 using Common.Runner;
 using Common.StepResults;
 using Microsoft.SemanticKernel.ChatCompletion;
@@ -8,20 +8,11 @@ using Spectre.Console.Cli;
 
 namespace Cli.Commands;
 
-public class ChatCommandSettings : CommandSettings
+public class ChatCommand(IUserInterface ui, AgentRunner agentRunner, IAgentFactory agentFactory) : AsyncCommand<ChatSettings>
 {
-    [Description("Text for LLM")]
-    [CommandArgument(0, "[text]")]
-    public string? Text { get; init; }
-    
-    [CommandOption("-a|--agent")]
-    public string? Agent { get; init; }
-}
-
-public class ChatCommand(IUserInterface ui, AgentRunner agentRunner, Agent[] agents) : AsyncCommand<ChatCommandSettings>
-{
-    public override async Task<int> ExecuteAsync(CommandContext context, ChatCommandSettings settings)
+    public override async Task<int> ExecuteAsync(CommandContext context, ChatSettings settings)
     {
+        var agents = await agentFactory.Init(default);
         var agent = agents.FirstOrDefault(x => x.Name == settings.Agent);
         if (agent == null)
         {
@@ -29,7 +20,7 @@ public class ChatCommand(IUserInterface ui, AgentRunner agentRunner, Agent[] age
             return 0;
         }
 
-        var stepContext = new StepContext();
+        var stepContext = new WorkflowContext();
         var message = await GenerateMessage(settings);
         if (!String.IsNullOrEmpty(message))
         {
@@ -40,7 +31,7 @@ public class ChatCommand(IUserInterface ui, AgentRunner agentRunner, Agent[] age
         return 0;
     }
     
-    private async Task<string> GenerateMessage(ChatCommandSettings settings)
+    private async Task<string> GenerateMessage(ChatSettings settings)
     {
         var sb = new StringBuilder();
         sb.AppendLine(settings.Text ?? "");

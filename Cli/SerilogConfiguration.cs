@@ -15,6 +15,7 @@ public static class SerilogConfiguration
         Log.Logger = new LoggerConfiguration()
             //.WriteTo.Console(LogEventLevel.Information, outputTemplate: consoleTemplate)
             .WriteTo.File(logPath, LogEventLevel.Verbose, outputTemplate: fileTemplate)
+            .WriteTo.Seq("http://localhost:5341")
             .MinimumLevel.Verbose()
             .CreateLogger();
     }

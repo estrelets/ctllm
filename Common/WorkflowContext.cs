@@ -2,7 +2,7 @@ using Common.StepResults;
 
 namespace Common;
 
-public class StepContext
+public class WorkflowContext
 {
     private readonly List<IStepResult> _results = new();
     public IReadOnlyList<IStepResult> Results => _results;

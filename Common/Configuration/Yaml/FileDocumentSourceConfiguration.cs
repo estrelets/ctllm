@@ -3,21 +3,17 @@ using Common.RAG.FileSystem;
 
 namespace Common.Configuration.Yaml;
 
-public class DirectoryDocumentSourceConfiguration : IDocumentSourceConfiguration
+public class FileDocumentSourceConfiguration : IDocumentSourceConfiguration
 {
     public required string Path { get; set; }
-    public required string Pattern { get; set; }
-    public required bool Recursive { get; set; }
     public required string Embedder { get; set; }
     
     public IDocumentsSource Parse(string key, YamlParseContext context)
     {
-        return new DirectoryDocumentSource()
+        return new FileDocumentSource()
         {
             Name = key,
             Path = Path,
-            Pattern = Pattern,
-            Recursive = Recursive,
             Embedder = context.GetModel(Embedder)
         };
     }

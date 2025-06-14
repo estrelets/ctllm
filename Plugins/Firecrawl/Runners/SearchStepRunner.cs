@@ -7,11 +7,12 @@ using Plugins.Firecrawl.Steps;
 namespace Plugins.Firecrawl.Runners;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class SearchStepRunner(HttpClient httpClient) : IStepRunner<SearchStep>
+public class SearchStepRunner(IHttpClientFactory httpClientFactory) : IStepRunner<SearchStep>
 {
-    public async Task<IStepResult> Run(StepContext context, SearchStep step, CancellationToken ct)
+    public async Task<IStepResult> Run(WorkflowContext context, SearchStep step, CancellationToken ct)
     {
-        var client = new FireсrawlClient(httpClient);
+        var httpClient = httpClientFactory.CreateClient(HttpClientKeys.Search);
+        var client = new FirecrawlClient(httpClient);
         
         var foundResult = await client.Search(context.Last.Main, step.Format, step.Limit, step.Language, step.Country, ct);
         if (!foundResult.Success || (foundResult.Data?.Length ?? 0) == 0)

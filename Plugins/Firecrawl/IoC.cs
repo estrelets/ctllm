@@ -11,13 +11,7 @@ public static class IoC
 {
     public static FirecrawlServiceCollection AddFirecrawlPlugin(this IServiceCollection services)
     {
-        YamlTypeLocator.AddStep<ScrapeStepConfiguration>("Firecrawl:Scraper");
-        YamlTypeLocator.AddStep<SearchStepConfiguration>("Firecrawl:Search");
-
-        return new FirecrawlServiceCollection(
-            services
-                .AddAlwaysErrorRunner<SearchStep>("Firecrawl is not configured")
-                .AddAlwaysErrorRunner<ScrapeStep>("Firecrawl is not configured"));
+        return new FirecrawlServiceCollection(services);
     }
 }
 
@@ -32,31 +26,50 @@ public class FirecrawlServiceCollection
 
     public FirecrawlServiceCollection AddFirecrawl(string url)
     {
-        return AddFirecrawlSearch(url).AddFirecrawlScrape(url);
+        return AddFirecrawlSearch(url)
+            .AddFirecrawlScrape(url)
+            .AddFirecrawlDocumentsSource(url);
     }
 
     public FirecrawlServiceCollection AddFirecrawlSearch(string url)
     {
+        YamlTypeLocator.AddStep<SearchStepConfiguration>("Firecrawl:Search");
+
         _services
             .AddRunner<SearchStep, SearchStepRunner>(ServiceLifetime.Scoped)
-            .AddHttpClient<SearchStepRunner>(o =>
+            .AddHttpClient(HttpClientKeys.Search, client =>
             {
-                o.BaseAddress = new Uri(url);
-                o.Timeout = TimeSpan.FromMinutes(5);
+                client.BaseAddress = new Uri(url);
+                client.Timeout = TimeSpan.FromMinutes(5);
             });
-        
+
         return this;
     }
 
     public FirecrawlServiceCollection AddFirecrawlScrape(string url)
     {
+        YamlTypeLocator.AddStep<ScrapeStepConfiguration>("Firecrawl:Scraper");
+
         _services
             .AddRunner<ScrapeStep, ScrapeStepRunner>(ServiceLifetime.Scoped)
-            .AddHttpClient<ScrapeStepRunner>(o =>
+            .AddHttpClient(HttpClientKeys.Scrape, client =>
             {
-                o.BaseAddress = new Uri(url);
-                o.Timeout = TimeSpan.FromMinutes(5);
+                client.BaseAddress = new Uri(url);
+                client.Timeout = TimeSpan.FromMinutes(5);
             });
+
+        return this;
+    }
+
+    public FirecrawlServiceCollection AddFirecrawlDocumentsSource(string url)
+    {
+        YamlTypeLocator.AddDocumentSource<FirecrawlDocumentSourceConfiguration>("Firecrawl");
+
+        _services.AddHttpClient(HttpClientKeys.Documents, client =>
+        {
+            client.BaseAddress = new Uri(url);
+            client.Timeout = TimeSpan.FromMinutes(5);
+        });
 
         return this;
     }
